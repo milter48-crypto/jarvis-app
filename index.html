@@ -44,7 +44,7 @@
     </style>
 </head>
 <body>
-    <h1 id="user-greeting">Загрузка...</h1>
+    <h1 id="user-greeting">Панель управления</h1>
     
     <button class="btn" onclick="sendCommand('protocol_relax')">🎵 Протокол Музыка</button>
     <button class="btn" onclick="sendCommand('protocol_solve')">🧠 Друг реши</button>
@@ -55,19 +55,16 @@
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('user-greeting').innerText = `Привет, ${tg.initDataUnsafe.user.first_name}! 👋`;
-        } else {
-            document.getElementById('user-greeting').innerText = 'Панель управления';
         }
 
         function sendCommand(cmd) {
-            // Если откроешь через Inline-кнопку, отработает sendData
+            // Перенаправляем команду в чат и гарантированно закрываем окно
             try {
-                tg.sendData(cmd);
+                tg.switchInlineQuery(cmd);
             } catch (e) {
-                console.log("sendData не поддерживается в этом контексте");
+                console.log("Ошибка отправки:", e);
             }
-            // Закрываем окно приложения
-            tg.close();
+            tg.close(); // Окно закроется в любом случае!
         }
     </script>
 </body>
