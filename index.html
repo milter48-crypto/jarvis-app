@@ -53,18 +53,41 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Твой токен бота
+        const BOT_TOKEN = "8956031398:AAEXs1_4KLhOdYoOcTQqr7UCf_a2U8DGPQ8";
+
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('user-greeting').innerText = `Привет, ${tg.initDataUnsafe.user.first_name}! 👋`;
         }
 
-        function sendCommand(cmd) {
-            // Перенаправляем команду в чат и гарантированно закрываем окно
-            try {
-                tg.switchInlineQuery(cmd);
-            } catch (e) {
-                console.log("Ошибка отправки:", e);
+        async function sendCommand(cmd) {
+            // Получаем ID пользователя Telegram
+            const userId = tg.initDataUnsafe?.user?.id;
+            
+            if (userId) {
+                try {
+                    // Отправляем команду прямо в чат с ботом через Telegram API
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: userId,
+                            text: cmd
+                        })
+                    });
+                } catch (e) {
+                    console.error("Ошибка отправки:", e);
+                }
+            } else {
+                alert("Не удалось определить ID пользователя Telegram.");
             }
-            tg.close(); // Окно закроется в любом случае!
+
+            // Закрываем окно приложения
+            try {
+                tg.close();
+            } catch (e) {
+                console.error(e);
+            }
         }
     </script>
 </body>
