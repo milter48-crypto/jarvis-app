@@ -49,7 +49,7 @@
 </head>
 <body>
     <h1 id="user-greeting">Панель управления Джарвисом</h1>
-    <div class="version">v4.0 (Silent Mode)</div>
+    <div class="version">v5.0 (Reliable Relay)</div>
     
     <button class="btn" onclick="sendCommand('protocol_relax')">🎵 Протокол Музыка</button>
     <button class="btn" onclick="sendCommand('protocol_solve')">🧠 Друг реши</button>
@@ -65,26 +65,32 @@
         }
 
         async function sendCommand(cmd) {
-            const userId = tg.initDataUnsafe?.user?.id;
+            let userId = tg.initDataUnsafe?.user?.id;
             
+            // 1. Пробуем отправить прямо через HTTP API
             if (userId) {
                 try {
-                    // Отправляем тихий служебный запрос
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             chat_id: userId,
-                            text: cmd,
-                            disable_notification: true
+                            text: cmd
                         })
                     });
                 } catch (e) {
-                    console.error("Ошибка отправки:", e);
+                    alert("Ошибка сети: " + e.message);
                 }
+            } else {
+                alert("Ошибка: Не удалось получить твой Telegram ID из приложения! Открой приложение через чат бота.");
             }
 
-            // Закрываем приложение
+            // 2. Дополнительно вызываем sendData на случай inline-кнопки
+            try {
+                tg.sendData(cmd);
+            } catch(e) {}
+
+            // Закрываем окно
             tg.close();
         }
     </script>
