@@ -49,7 +49,7 @@
 </head>
 <body>
     <h1 id="user-greeting">Панель управления Джарвисом</h1>
-    <div class="version">v5.0 (Reliable Relay)</div>
+    <div class="version">v6.0 (Inline Switch)</div>
     
     <button class="btn" onclick="sendCommand('protocol_relax')">🎵 Протокол Музыка</button>
     <button class="btn" onclick="sendCommand('protocol_solve')">🧠 Друг реши</button>
@@ -58,39 +58,18 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const BOT_TOKEN = "8956031398:AAEXs1_4KLhOdYoOcTQqr7UCf_a2U8DGPQ8";
-
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('user-greeting').innerText = `Привет, ${tg.initDataUnsafe.user.first_name}! 👋`;
         }
 
-        async function sendCommand(cmd) {
-            let userId = tg.initDataUnsafe?.user?.id;
-            
-            // 1. Пробуем отправить прямо через HTTP API
-            if (userId) {
-                try {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: userId,
-                            text: cmd
-                        })
-                    });
-                } catch (e) {
-                    alert("Ошибка сети: " + e.message);
-                }
-            } else {
-                alert("Ошибка: Не удалось получить твой Telegram ID из приложения! Открой приложение через чат бота.");
-            }
-
-            // 2. Дополнительно вызываем sendData на случай inline-кнопки
+        function sendCommand(cmd) {
             try {
-                tg.sendData(cmd);
-            } catch(e) {}
-
-            // Закрываем окно
+                // Передаем команду в встроенный инлайн-поиск чата бота
+                tg.switchInlineQuery(cmd);
+            } catch (e) {
+                console.error("Ошибка:", e);
+            }
+            // Закрываем приложение
             tg.close();
         }
     </script>
