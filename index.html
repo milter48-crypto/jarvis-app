@@ -20,8 +20,13 @@
             box-sizing: border-box;
         }
         h1 {
-            margin-bottom: 20px;
+            margin-bottom: 5px;
             font-size: 22px;
+        }
+        .version {
+            font-size: 12px;
+            color: #888888;
+            margin-bottom: 25px;
         }
         .btn {
             width: 100%;
@@ -35,16 +40,16 @@
             border-radius: 12px;
             cursor: pointer;
             margin: 10px 0;
-            transition: transform 0.1s, opacity 0.2s;
+            transition: transform 0.1s;
         }
         .btn:active {
-            transform: scale(0.98);
-            opacity: 0.9;
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
-    <h1 id="user-greeting">Панель управления</h1>
+    <h1 id="user-greeting">Панель управления Джарвисом</h1>
+    <div class="version">v4.0 (Silent Mode)</div>
     
     <button class="btn" onclick="sendCommand('protocol_relax')">🎵 Протокол Музыка</button>
     <button class="btn" onclick="sendCommand('protocol_solve')">🧠 Друг реши</button>
@@ -53,7 +58,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Твой токен бота
         const BOT_TOKEN = "8956031398:AAEXs1_4KLhOdYoOcTQqr7UCf_a2U8DGPQ8";
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -61,33 +65,27 @@
         }
 
         async function sendCommand(cmd) {
-            // Получаем ID пользователя Telegram
             const userId = tg.initDataUnsafe?.user?.id;
             
             if (userId) {
                 try {
-                    // Отправляем команду прямо в чат с ботом через Telegram API
+                    // Отправляем тихий служебный запрос
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             chat_id: userId,
-                            text: cmd
+                            text: cmd,
+                            disable_notification: true
                         })
                     });
                 } catch (e) {
                     console.error("Ошибка отправки:", e);
                 }
-            } else {
-                alert("Не удалось определить ID пользователя Telegram.");
             }
 
-            // Закрываем окно приложения
-            try {
-                tg.close();
-            } catch (e) {
-                console.error(e);
-            }
+            // Закрываем приложение
+            tg.close();
         }
     </script>
 </body>
